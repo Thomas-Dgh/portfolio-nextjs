@@ -1,15 +1,52 @@
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import { AiOutlineMail, AiFillHeart } from "react-icons/ai";
 import { BsFillPersonFill } from "react-icons/bs";
 import { FaGithub, FaLinkedinIn } from "react-icons/fa";
-import {HiOutlineChevronDoubleUp } from 'react-icons/hi'
+import { HiOutlineChevronDoubleUp, HiPaperAirplane } from "react-icons/hi";
 import contactImg from "../public/assets/contact/contactImg.jpg";
 
-
-
 const Contact = () => {
+  // States for contact form fields
+  const [fullname, setFullname] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState("");
+
+
+async function handleOnSubmit(e) {
+  e.preventDefault();
+  const formData = {
+    fullname,
+    phone,
+    subject,
+    email,
+    message,
+  };
+
+  setSubmitted(true);
+
+    await fetch("/api/mail", {
+      method: "POST",
+      body: JSON.stringify(formData),
+    }).then((res) => {
+      if (res.status === 200) {
+        setSubmitted(false);
+        setFullname("");
+        setPhone("");
+        setEmail("");
+        setMessage("");
+        setStatus("success");
+      } else {
+        setStatus("error");
+      }
+    });
+}
+
   return (
     <div
       id="contact"
@@ -75,7 +112,7 @@ const Contact = () => {
 
           <div className="col-span-3 w-full h-auto shadow-xl shadow-gray-400 rounded-xl lg:p-4 tracking-tight dark:text-white">
             <div className="p-4">
-              <form>
+              <form action="submit" method="POST" onSubmit={handleOnSubmit}>
                 <div className=" grid md:grid-cols-2 gap-4 w-full py-2 -">
                   <div className="flex flex-col ">
                     <label className="uppercase text-sm py-2">
@@ -83,7 +120,11 @@ const Contact = () => {
                     </label>
                     <input
                       type="text"
-                      required
+                      value={fullname}
+                      onChange={(e) => {
+                        setFullname(e.target.value);
+                      }}
+                      name="fullname"
                       className="border-2 rounded-lg p-3 flex border-grey-300 tracking-tight dark:bg-gray-600 text-white"
                     />
                   </div>
@@ -91,7 +132,11 @@ const Contact = () => {
                     <label className="uppercase text-sm py-2">Téléphone</label>
                     <input
                       type="phone"
-                      required
+                      name="phone"
+                      value={phone}
+                      onChange={(e) => {
+                        setPhone(e.target.value);
+                      }}
                       className="border-2 rounded-lg p-3 flex border-grey-300  tracking-tight dark:bg-gray-600 text-white"
                     />
                   </div>
@@ -100,7 +145,11 @@ const Contact = () => {
                   <label className="uppercase text-sm py-2">E-mail</label>
                   <input
                     type="email"
-                    required
+                    name="email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                    }}
                     className="border-2 rounded-lg p-3 flex border-grey-300  tracking-tight dark:bg-gray-600 text-white"
                   />
                 </div>
@@ -108,22 +157,45 @@ const Contact = () => {
                   <label className="uppercase text-sm py-2">Objet</label>
                   <input
                     type="text"
-                    required
+                    name="subject"
+                    value={subject}
+                    onChange={(e) => {
+                      setSubject(e.target.value);
+                    }}
                     className="border-2 rounded-lg p-3 flex border-grey-300  tracking-tight dark:bg-gray-600 text-white"
                   />
                 </div>
                 <div className="flex flex-col py-2">
                   <label className="uppercase text-sm py-2">Message</label>
                   <textarea
-                    required
+                    name="message"
+                    value={message}
+                    onChange={(e) => {
+                      setMessage(e.target.value);
+                    }}
                     className="border-2 rounded-lg p-3 flex border-grey-300  tracking-tight dark:bg-gray-600 text-white"
                     rows="7"
                   />
                 </div>
-
-                <button className=" w-full p-4 text-gray-100 mt-4 ">
+                <button
+                  type="submit"
+                  isLoading={submitted}
+                  loadingText="Submitting"
+                  className=" w-full p-4 text-gray-100 mt-4 "
+                >
                   Envoyer le message
                 </button>
+                <div className="text-left duration-300  tracking-tight dark:bg-gray-800">
+                  {status === "success" ? (
+                    <p className="text-green-500 font-semibold text-sm my-2">
+                      Merci! Le message a bien été envoyé.
+                    </p>
+                  ) : status === "error" ? (
+                    <p className="text-red-500">
+                      Oops! Il y a une erreur quelque part..
+                    </p>
+                  ) : null}
+                </div>
               </form>
             </div>
           </div>
@@ -135,8 +207,8 @@ const Contact = () => {
             </div>
           </Link>
         </div>
-        <div>
-          <p className="mt-9 mb-[-13%] flex justify-center items-center flex-row text-gray-500 tracking-tight dark:text-white">
+        <div className="w-full duration-300  tracking-tight dark:bg-gray-800">
+          <p className="mt-5 mb-[-13%] flex justify-center items-center flex-row text-gray-500 tracking-tight dark:text-white ">
             Developped with&nbsp;
             <AiFillHeart className=" text-red-600 " />
             &nbsp;by Thomas DGH
