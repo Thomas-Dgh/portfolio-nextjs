@@ -8,7 +8,7 @@ import { HiOutlineChevronDoubleUp, HiPaperAirplane } from "react-icons/hi";
 import contactImg from "../public/assets/contact/contactImg.jpg";
 
 const Contact = () => {
-  // States for contact form fields
+
   const [fullname, setFullname] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -17,35 +17,40 @@ const Contact = () => {
   const [submitted, setSubmitted] = useState(false);
   const [status, setStatus] = useState("");
 
+  async function handleOnSubmit(e) {
+    e.preventDefault();
+    const formData = {
+      fullname,
+      phone,
+      subject,
+      email,
+      message,
+    };
 
-async function handleOnSubmit(e) {
-  e.preventDefault();
-  const formData = {
-    fullname,
-    phone,
-    subject,
-    email,
-    message,
-  };
+    setSubmitted(true);
 
-  setSubmitted(true);
-
-    await fetch("/api/mail", {
+   
+    fetch("api/sendgrid", {
       method: "POST",
+      headers: { "Content-type": "application/json" },
       body: JSON.stringify(formData),
-    }).then((res) => {
-      if (res.status === 200) {
-        setSubmitted(false);
-        setFullname("");
-        setPhone("");
-        setEmail("");
-        setMessage("");
-        setStatus("success");
-      } else {
-        setStatus("error");
-      }
-    });
-}
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.status === "success") {
+          setSubmitted(false);
+          setFullname("");
+          setPhone("");
+          setEmail("");
+          setSubject("");
+          setMessage("");
+          setStatus("success");
+        } else {
+          setStatus("error");
+        }
+      })
+      .catch((e) => console.log(e));;
+  }
 
   return (
     <div
@@ -120,11 +125,11 @@ async function handleOnSubmit(e) {
                     </label>
                     <input
                       type="text"
+                      name="fullname"
                       value={fullname}
                       onChange={(e) => {
                         setFullname(e.target.value);
                       }}
-                      name="fullname"
                       className="border-2 rounded-lg p-3 flex border-grey-300 tracking-tight dark:bg-gray-600 text-white"
                     />
                   </div>
@@ -181,21 +186,21 @@ async function handleOnSubmit(e) {
                   type="submit"
                   isLoading={submitted}
                   loadingText="Submitting"
-                  className=" w-full p-4 text-gray-100 mt-4 "
-                >
-                  Envoyer le message
+                  className=" w-full p-4 text-gray-100 mt-4 "> Envoyer le
+                  message
                 </button>
-                <div className="text-left duration-300  tracking-tight dark:bg-gray-800">
-                  {status === "success" ? (
+                {/* <div className="text-left duration-300  tracking-tight dark:bg-gray-800">
+                  {showSuccessMessage && (
                     <p className="text-green-500 font-semibold text-sm my-2">
                       Merci! Le message a bien été envoyé.
                     </p>
-                  ) : status === "error" ? (
+                  )}
+                  {showFailureMessage && (
                     <p className="text-red-500">
                       Oops! Il y a une erreur quelque part..
                     </p>
-                  ) : null}
-                </div>
+                  )}
+                </div> */}
               </form>
             </div>
           </div>
