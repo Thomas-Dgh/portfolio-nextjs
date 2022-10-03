@@ -7,7 +7,7 @@ const Main = () => {
   return (
     <div
       id="home"
-      className=" w-full h-screen text-center  dark:bg-gray-800 dark:border-gray-700 transition duration-300"
+      className="w-full h-screen text-center dark:bg-gray-800 dark:border-gray-700 transition duration-300"
     >
       <div className=" max-w-[1240px] w-full h-full mx-auto p-2 flex justify-center items-center">
         <div>
